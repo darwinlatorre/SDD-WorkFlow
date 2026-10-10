@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">SDD-WorkFlow linked path</title>
+  <desc id="desc">Linked graphite geometric frames crossed by a continuous copper workflow path.</desc>
+  <path d="M24 16H64L88 40V80L64 104H24L8 88V32ZM64 24H104L120 40V96L104 112H64L40 88V48Z" fill="none" stroke="#292D32" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M20 64H44L64 44L84 64H108" fill="none" stroke="#B8734B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

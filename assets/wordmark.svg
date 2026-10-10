@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 128" role="img" aria-labelledby="title desc">
+  <title id="title">SDD-WorkFlow</title>
+  <desc id="desc">Linked geometric graphite frames and a copper continuous path beside the SDD-WorkFlow name.</desc>
+  <path d="M24 16H64L88 40V80L64 104H24L8 88V32ZM64 24H104L120 40V96L104 112H64L40 88V48Z" fill="none" stroke="#292D32" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M20 64H44L64 44L84 64H108" fill="none" stroke="#B8734B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="150" y="72" font-family="sans-serif" font-size="43" font-weight="700" fill="#292D32">SDD-WorkFlow</text>
+  <text x="152" y="99" font-family="sans-serif" font-size="15" letter-spacing="2" fill="#B8734B">SPECIFY · VERIFY · HUMAN GATES</text>
+</svg>

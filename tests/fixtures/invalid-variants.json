@@ -1,0 +1,1 @@
+{"variants":["wrong types","duplicate keys","duplicate IDs","dangling IDs","uncovered REQ","uncovered CA","retired reuse","feature cycle","task cycle","active conflict","scope escape","unknown identity","wildcard permission override"]}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "orchestrator",
+  "autoupdate": false,
+  "share": "disabled",
+  "formatter": false,
+  "lsp": false,
+  "permission": {"*": "deny"},
+  "agent": {
+    "build": {"disable": true},
+    "plan": {"disable": true},
+    "general": {"disable": true},
+    "explore": {"disable": true},
+    "scout": {"disable": true},
+    "orchestrator": {
+      "description": "Coordinate SDD with human gates and exclusive global state ownership",
+      "mode": "primary",
+      "permission": {
+        "*": "deny",
+        "read": {"*": "allow", "*.env": "deny", "*.env.*": "deny"},
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow",
+        "edit": {"*": "deny", ".sdd/*": "allow", ".sdd/evidence/*": "deny", ".sdd/progress/*.json": "deny", ".sdd/progress/*-review.json": "allow", ".sdd/progress/*-closure.json": "allow", "opencode.json": "allow"},
+        "task": {"*": "deny", "planner": "allow", "implementer": "allow", "verifier": "allow"},
+        "bash": {
+          "*": "deny",
+          "python3 sdd.py status --root . --json": "allow",
+          "python3 sdd.py validate --root . --json": "allow",
+          "python3 sdd.py status --root . --json --profile": "allow",
+          "python3 sdd.py status --root . --json --profile --assigned-task *": "allow",
+          "python3 sdd.py status --root . --json --profile --runtime-grants": "allow",
+          "python3 sdd.py status --root . --json --profile --runtime-grants --assigned-task *": "allow",
+          "python3 sdd.py approval --root . --feature * --confirmation-ref .sdd/approval-human.json --json": "allow"
+        }
+      }
+    },
+    "planner": {
+      "description": "Author consistent versioned requirements design and tasks",
+      "mode": "subagent",
+      "permission": {
+        "*": "deny",
+        "read": {"*": "allow", "*.env": "deny", "*.env.*": "deny"},
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow",
+        "edit": {"*": "deny", "specs/*": "allow"}
+      }
+    },
+    "implementer": {
+      "description": "Implement only approved task paths and record scoped evidence",
+      "mode": "subagent",
+      "permission": {
+        "*": "deny",
+        "read": {"*": "allow", "*.env": "deny", "*.env.*": "deny"},
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow",
+        "edit": {"*": "deny"},
+        "bash": {"*": "deny"}
+      }
+    },
+    "verifier": {
+      "description": "Review existing artifacts conditionally without execution or writes",
+      "mode": "subagent",
+      "permission": {
+        "*": "deny",
+        "read": {"*": "allow", "*.env": "deny", "*.env.*": "deny"},
+        "glob": "allow",
+        "grep": "allow",
+        "question": "allow"
+      }
+    }
+  }
+}

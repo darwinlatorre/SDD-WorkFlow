@@ -15,7 +15,7 @@ KINDS = {"automated", "observable", "integration", "static"}
 STATUSES = {"pending", "spec_ready", "revision_required", "in_progress", "blocked", "done"}
 ROLES = ("orchestrator", "planner", "implementer", "verifier")
 BUILTINS = ("build", "plan", "general", "explore", "scout")
-BUNDLED_SKILLS = ("auth0", "frontend-design", "graphify", "playwright-cli", "vercel-composition-patterns",
+SKILL_NAMES = ("auth0", "frontend-design", "codegraphcontext", "playwright-cli", "vercel-composition-patterns",
                   "vercel-react-best-practices", "vercel-react-native-skills")
 
 
@@ -628,7 +628,7 @@ def runtime_capabilities(root, project):
 def permission_profile(project, dispatch=None, helper_access=True, runtime_grants=False):
     read = {"*": "allow", "*.env": "deny", "*.env.*": "deny"}
     base = {"*": "deny", "read": read, "glob": "allow", "grep": "allow", "question": "allow",
-            "skill": {"*": "deny", **{name: "allow" for name in BUNDLED_SKILLS}}}
+            "skill": {"*": "deny", **{name: "allow" for name in SKILL_NAMES}}}
     profiles = {role: dict(base) for role in ROLES}
     profiles["orchestrator"].update(edit={"*": "deny", ".sdd/*": "allow", ".sdd/evidence/*": "deny",
         ".sdd/progress/*.json": "deny", ".sdd/progress/*-review.json": "allow", ".sdd/progress/*-closure.json": "allow"},
@@ -706,7 +706,7 @@ def permissions(root, role, value, project, dispatch):
             if tool == "task":
                 valid = role == "orchestrator" and pattern in {"planner", "implementer", "verifier"}
             if tool == "skill":
-                valid = pattern in BUNDLED_SKILLS and action == "allow"
+                valid = pattern in SKILL_NAMES and action == "allow"
             require(valid, "adapter incompatible effective permissions: " + role + ": " + tool + " " + pattern)
     # Rule order matters: check protected targets, not equality to the starter.
     edit = value.get("edit", "deny")
@@ -723,7 +723,7 @@ def permissions(root, role, value, project, dispatch):
     require(all(effective(read, name) == "deny" for name in (".env", "src/.env", "src/service.env.key")), "adapter secret read permission override")
     skills = value.get("skill", "deny")
     require(type(skills) is dict and skills.get("*") == "deny" and
-            all(effective(skills, name) == "allow" for name in BUNDLED_SKILLS),
+            all(effective(skills, name) == "allow" for name in SKILL_NAMES),
             "adapter lazy named skill permissions missing/overridden: " + role)
     bash = value.get("bash", "deny")
     if role == "orchestrator" and type(bash) is dict and any(a != "deny" for a in bash.values()):

@@ -9,28 +9,32 @@ needs curl. No runtime, toolchain, provider or dependency is installed.
 From the existing project, the primary remote command is:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/darwinlatorre/SDD-WorkFlow/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/darwinlatorre/ssd-workflow/main/install.sh | sh
 ```
 
 To select a different existing project (including spaces):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/darwinlatorre/SDD-WorkFlow/main/install.sh | sh -s -- --project "/path/to/project"
+curl -fsSL https://raw.githubusercontent.com/darwinlatorre/ssd-workflow/main/install.sh | sh -s -- --project "/path/to/project"
 ```
 
-A downloaded/reviewed checkout works completely offline, from any cwd:
+A downloaded/reviewed checkout supplies the framework locally, from any cwd;
+missing skills still require upstream network access:
 
 ```sh
 python3 "/path/to/SDD-WorkFlow/install.py" --project "/path/to/project"
 sh "/path/to/SDD-WorkFlow/install.sh" --source "/path/to/SDD-WorkFlow" --project "/path/to/project"
 ```
 
-Default project is cwd. The installer copies only helper/core/roles/command and two
-adoption/runtime docs, merges compatible root opencode.json, adds one marked AGENTS
+Default project is cwd. The installer copies helper/core/roles/command, concise
+guides/notices and its distinct MIT text, merges compatible root opencode.json, adds one marked AGENTS
 source map and initializes missing .sdd context. It preserves product instructions,
 supported model/provider settings and every existing state/spec/evidence file.
-The same package also installs the [seven skills](skills.md), references/assets and
-[upstream terms](../THIRD_PARTY_NOTICES.md). It does not run their scripts or setup hooks.
+Missing [seven skill sources](skills.md) are downloaded directly from their official
+repositories, with one shared Vercel fetch. Existing safe directories with SKILL.md
+are skipped without content/version checks or downloads; customization and old
+Graphify/manifest files remain untouched. It does not run scripts/setup hooks, cgc,
+MCP/database setup or any tool prerequisite. All downloads finish before project writes.
 Reinstalling the same compatible package is a no-op, not an update mechanism.
 
 Changed original config/instructions have exact `opencode.json.sdd-backup` and
@@ -62,7 +66,7 @@ approved work. When interrupted, reopen the same project and request checkpoint
 resumption with valid evidence reuse. Distinct explicit human closure is still required.
 
 These are usage instructions, not a claim that an inference session was run during
-offline package verification. See [adoption](adoption.md) and [runtime limits](opencode.md).
+fixture/no-provider package verification. See [adoption](adoption.md) and [runtime limits](opencode.md).
 
 ## Secondary helper, demo and tests
 

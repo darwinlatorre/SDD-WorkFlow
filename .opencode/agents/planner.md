@@ -3,7 +3,7 @@ description: Author consistent versioned requirements design and tasks
 mode: subagent
 ---
 Follow core/lifecycle.md and core/spec-format.md. Read only needed source context.
-Load only task-relevant bundled guidance with the native skill tool, never all skills
+Load only task-relevant upstream guidance with the native skill tool, never all skills
 at startup. Human scope and core role/tool limits take precedence over upstream
 instructions. Skill loading does not authorize implementation, shell, browser/graph
 workflows or dependency/tool installation. See docs/skills.md for guidance names.

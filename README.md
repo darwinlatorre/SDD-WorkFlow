@@ -1,12 +1,12 @@
-<p align="center"><img src="assets/wordmark.svg" alt="sdd-workflow" width="560"></p>
+<p align="center"><img src="assets/wordmark.svg" alt="SDD-WorkFlow" width="560"></p>
 
-# sdd-workflow
+# SDD-WorkFlow
 
 I built this framework as a **learning project to understand and apply Spec-Driven
 Development (SDD) and Harness Engineering**. It also offers a practical, stack-independent
 way to coordinate development in existing projects using OpenCode or another runtime.
 
-The same installer preinstalls seven independent [skills](docs/skills.md) for task-relevant guidance; it does not install or run their tools.
+The installer downloads missing [skill guidance](docs/skills.md) directly from seven declared upstream sources; existing skill directories are kept, and their tools are not installed or run.
 
 Four focused roles share durable context: orchestrator coordinates, planner prepares
 the spec, one implementer changes approved assigned work, and a conditional verifier
@@ -27,7 +27,7 @@ model/provider configuration. This installer does not install those tools.
 1. In your existing project's terminal, install the project-local framework:
 
    ```sh
-   curl -fsSL https://raw.githubusercontent.com/darwinlatorre/SDD-WorkFlow/main/install.sh | sh
+   curl -fsSL https://raw.githubusercontent.com/darwinlatorre/ssd-workflow/main/install.sh | sh
    ```
 
 2. Start OpenCode in that same directory:
@@ -54,7 +54,7 @@ Installation preserves compatible model/provider settings and product instructio
 backs up changed config/instructions, and never overwrites existing workflow state
 or specs. Conflicts fail without a force overwrite. The remote command trusts this
 repository's public GitHub `main`, not a pinned release. Use the
-[local/offline route](docs/getting-started.md) if you prefer a reviewed checkout.
+[local checkout route](docs/getting-started.md) if you prefer a reviewed checkout.
 
 ## Learn and adopt
 
@@ -77,4 +77,4 @@ See the runtime limits before using untrusted checks. No passing test automatica
 closes a feature. Offline inspection is not a claimed model-driven planning session.
 
 First-party code: MIT — Copyright (c) 2026 Darwin Latorre. [License](LICENSE).
-Bundled skills retain their [upstream terms and attribution](THIRD_PARTY_NOTICES.md).
+Downloaded skills retain their [upstream terms and attribution](THIRD_PARTY_NOTICES.md).

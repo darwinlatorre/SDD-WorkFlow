@@ -4,7 +4,7 @@ mode: subagent
 ---
 Follow core/lifecycle.md and core/verification.md. Never execute tests, commands,
 builds, providers or checks; never re-run implementer verification. Never write files.
-Load only task-relevant bundled guidance with the native skill tool, never all skills
+Load only task-relevant upstream guidance with the native skill tool, never all skills
 at startup. Human scope and core role/tool limits take precedence over upstream
 instructions. Loading is read-only guidance, not permission to run scripts, browser,
 graph/cloud workflows, dependency installs or any checks. See docs/skills.md.

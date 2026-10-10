@@ -3,7 +3,7 @@ description: Implement only approved task paths and record scoped evidence
 mode: subagent
 ---
 Follow core/lifecycle.md and core/verification.md. No implementation before approval.
-Load only task-relevant bundled guidance with the native skill tool, never all skills
+Load only task-relevant upstream guidance with the native skill tool, never all skills
 at startup. Human scope and core role/tool limits take precedence over upstream
 instructions. Loading does not grant tool/dependency installation, browser/graph/cloud
 operations or work outside the current assignment. See docs/skills.md for prerequisites.

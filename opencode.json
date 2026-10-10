@@ -21,7 +21,7 @@
         "glob": "allow",
         "grep": "allow",
         "question": "allow",
-        "skill": {"*": "deny", "auth0": "allow", "frontend-design": "allow", "graphify": "allow", "playwright-cli": "allow", "vercel-composition-patterns": "allow", "vercel-react-best-practices": "allow", "vercel-react-native-skills": "allow"},
+        "skill": {"*": "deny", "auth0": "allow", "frontend-design": "allow", "codegraphcontext": "allow", "playwright-cli": "allow", "vercel-composition-patterns": "allow", "vercel-react-best-practices": "allow", "vercel-react-native-skills": "allow"},
         "edit": {"*": "deny", ".sdd/*": "allow", ".sdd/evidence/*": "deny", ".sdd/progress/*.json": "deny", ".sdd/progress/*-review.json": "allow", ".sdd/progress/*-closure.json": "allow", "opencode.json": "allow"},
         "task": {"*": "deny", "planner": "allow", "implementer": "allow", "verifier": "allow"},
         "bash": {
@@ -45,7 +45,7 @@
         "glob": "allow",
         "grep": "allow",
         "question": "allow",
-        "skill": {"*": "deny", "auth0": "allow", "frontend-design": "allow", "graphify": "allow", "playwright-cli": "allow", "vercel-composition-patterns": "allow", "vercel-react-best-practices": "allow", "vercel-react-native-skills": "allow"},
+        "skill": {"*": "deny", "auth0": "allow", "frontend-design": "allow", "codegraphcontext": "allow", "playwright-cli": "allow", "vercel-composition-patterns": "allow", "vercel-react-best-practices": "allow", "vercel-react-native-skills": "allow"},
         "edit": {"*": "deny", "specs/*": "allow"}
       }
     },
@@ -58,7 +58,7 @@
         "glob": "allow",
         "grep": "allow",
         "question": "allow",
-        "skill": {"*": "deny", "auth0": "allow", "frontend-design": "allow", "graphify": "allow", "playwright-cli": "allow", "vercel-composition-patterns": "allow", "vercel-react-best-practices": "allow", "vercel-react-native-skills": "allow"},
+        "skill": {"*": "deny", "auth0": "allow", "frontend-design": "allow", "codegraphcontext": "allow", "playwright-cli": "allow", "vercel-composition-patterns": "allow", "vercel-react-best-practices": "allow", "vercel-react-native-skills": "allow"},
         "edit": {"*": "deny"},
         "bash": {"*": "deny"}
       }
@@ -72,7 +72,7 @@
         "glob": "allow",
         "grep": "allow",
         "question": "allow",
-        "skill": {"*": "deny", "auth0": "allow", "frontend-design": "allow", "graphify": "allow", "playwright-cli": "allow", "vercel-composition-patterns": "allow", "vercel-react-best-practices": "allow", "vercel-react-native-skills": "allow"}
+        "skill": {"*": "deny", "auth0": "allow", "frontend-design": "allow", "codegraphcontext": "allow", "playwright-cli": "allow", "vercel-composition-patterns": "allow", "vercel-react-best-practices": "allow", "vercel-react-native-skills": "allow"}
       }
     }
   }

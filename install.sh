@@ -25,7 +25,7 @@ stage=$(mktemp -d)
 trap 'rm -rf "$stage"' EXIT
 trap 'exit 1' HUP INT TERM
 curl -fsSL --connect-timeout 10 --max-time 60 --max-filesize 10485760 \
-  https://codeload.github.com/darwinlatorre/SDD-WorkFlow/tar.gz/refs/heads/main \
+  https://codeload.github.com/darwinlatorre/ssd-workflow/tar.gz/refs/heads/main \
   -o "$stage/source.tar.gz" || { printf '%s\n' 'GitHub source download failed; project unchanged.' >&2; exit 1; }
 python3 - "$stage/source.tar.gz" "$stage/source" <<'PY'
 import gzip, pathlib, sys, tarfile
@@ -51,7 +51,7 @@ try:
             name = member.name.rstrip('/') if member.isdir() else member.name
             path = pathlib.PurePosixPath(name)
             if (not name or '\\' in name or any(ord(c) < 32 for c in name) or path.is_absolute()
-                or '..' in path.parts or path.as_posix() != name or path.parts[0] != 'SDD-WorkFlow-main'
+                or '..' in path.parts or path.as_posix() != name or path.parts[0] != 'ssd-workflow-main'
                 or len(path.parts) == 1 and not member.isdir()
                 or name in names or not (member.isfile() or member.isdir())):
                 raise ValueError('unsafe/unsupported source archive member')
@@ -73,4 +73,4 @@ except (OSError, EOFError, ValueError, tarfile.TarError):
     print('Source archive refused; project unchanged.', file=sys.stderr)
     sys.exit(1)
 PY
-python3 "$stage/source/SDD-WorkFlow-main/install.py" --project "$project"
+python3 "$stage/source/ssd-workflow-main/install.py" --project "$project"

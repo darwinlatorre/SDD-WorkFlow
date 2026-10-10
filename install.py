@@ -1,31 +1,38 @@
 #!/usr/bin/env python3
 """Install the bounded project-local package. No force, updater or runtime install."""
 import argparse
-import hashlib
 import importlib.util
 import json
 import os
-from pathlib import Path
-import re
+from pathlib import Path, PurePosixPath
 import stat
 import sys
+import tarfile
 import tempfile
+import urllib.error
+import urllib.request
 
 MANAGED = ("sdd.py", "core/contracts.md", "core/spec-format.md", "core/lifecycle.md",
            "core/verification.md", "docs/adoption.md", "docs/opencode.md",
            ".opencode/agents/orchestrator.md", ".opencode/agents/planner.md",
            ".opencode/agents/implementer.md", ".opencode/agents/verifier.md",
-           ".opencode/commands/sdd.md", ".opencode/skill-manifest.json")
-SKILLS = ("auth0", "frontend-design", "graphify", "playwright-cli", "vercel-composition-patterns",
-          "vercel-react-best-practices", "vercel-react-native-skills")
-SUPPLEMENTS = ("docs/skills.md", "THIRD_PARTY_NOTICES.md", "licenses/sdd-workflow-MIT.txt", "third_party/licenses/Auth0-Apache-2.0.txt",
-               "third_party/licenses/Graphify-Apache-2.0.txt", "third_party/licenses/Graphify-MIT.txt",
-               "third_party/licenses/Graphify-NOTICE.txt", "third_party/licenses/Playwright-Apache-2.0.txt",
-               "third_party/licenses/Vercel-MIT.txt")
+           ".opencode/commands/sdd.md", "docs/skills.md", "THIRD_PARTY_NOTICES.md", "licenses/sdd-workflow-MIT.txt")
+# repo, fixed ref, selected subtree, native name, optional repository notices.
+VERCEL_REF = "063bee94c3f4df8453406c830b0a7df0f2860278"
+SKILL_SOURCES = (
+    ("auth0/agent-skills", "d48ab4b1b36c9d9574f88e18dc182e9e896fa582", "plugins/auth0/skills/auth0", "auth0", ("LICENSE", "NOTICE")),
+    ("anthropics/skills", "dbd4588f9e1033efb41dad4bef2f7947c8993d44", "skills/frontend-design", "frontend-design", ()),
+    ("CodeGraphContext/CodeGraphContext", "1eedea3527a31443b75d29a632c4c477b7b30508", ".cursor/skills/codegraphcontext", "codegraphcontext", ("LICENSE", "NOTICE")),
+    ("microsoft/playwright-cli", "b85c7a736bb473bf55b584e54a09ffa698d6d871", "skills/playwright-cli", "playwright-cli", ("LICENSE", "NOTICE")),
+    ("vercel-labs/agent-skills", VERCEL_REF, "skills/composition-patterns", "vercel-composition-patterns", ("LICENSE", "NOTICE")),
+    ("vercel-labs/agent-skills", VERCEL_REF, "skills/react-best-practices", "vercel-react-best-practices", ("LICENSE", "NOTICE")),
+    ("vercel-labs/agent-skills", VERCEL_REF, "skills/react-native-skills", "vercel-react-native-skills", ("LICENSE", "NOTICE")),
+)
+SKILLS = tuple(row[3] for row in SKILL_SOURCES)
 CONTEXT = ("project.json", "state.json", "environment.json", "decisions.md")
 START = "<!-- sdd-workflow:source-map:start -->"
 END = "<!-- sdd-workflow:source-map:end -->"
-MAP = (START + "\n## sdd-workflow sources\n\n"
+MAP = (START + "\n## SDD-WorkFlow sources\n\n"
        "Use `.opencode/agents/` for the four role definitions. Orchestrator alone\n"
        "coordinates global state; implementer works only on assigned approved tasks.\n"
        "Read sources on demand, not all at startup:\n\n"
@@ -119,7 +126,7 @@ def instructions(original):
         check(original.count(begin) == original.count(end) == 1, "AGENTS.md ambiguous source-map markers")
         start = original.index(begin)
         stop = original.index(end) + len(end)
-        check(original[start:stop] == MAP.rstrip(b"\n"), "AGENTS.md differing source-map block")
+        check(original[start:stop] in {MAP.rstrip(b"\n"), MAP.replace(b"## SDD-WorkFlow sources", b"## sdd-workflow sources").rstrip(b"\n")}, "AGENTS.md differing source-map block")
         return original
     return original + (b"\n" if original.endswith(b"\n") else b"\n\n") + MAP
 
@@ -131,37 +138,74 @@ def helper_from(source):
     return helper
 
 
-def skill_files(source, helper):
-    """Fixed release data only. No original host lookup, imports or install hooks."""
-    inventory = helper.decode(read(source, ".opencode/skill-manifest.json").decode("utf-8"))
-    helper.shape(inventory, {"skills": list, "files": dict, "supplements": dict}, "skill manifest", True)
-    check(inventory["skills"] == list(SKILLS), "skill manifest must contain exactly seven names")
-    files = inventory["files"]
-    check(files and len(files) <= 1000 and set(inventory["supplements"]) == set(SUPPLEMENTS), "skill manifest membership invalid")
-    roots = source / ".opencode/skills"
-    check(roots.is_dir() and not roots.is_symlink(), "missing/unsafe skill source directory")
-    check({p.name for p in roots.iterdir()} == set(SKILLS), "unknown/missing skill source name")
-    actual = set()
-    for path in roots.rglob("*"):
-        check(not path.is_symlink() and (path.is_file() or path.is_dir()), "unsafe skill source type/link")
-        if path.is_file():
-            actual.add(path.relative_to(source).as_posix())
-    check(actual == set(files), "unknown/missing skill source members; use the complete release")
-    for name in SKILLS:
-        key = f".opencode/skills/{name}/SKILL.md"
-        check(key in files, "missing SKILL.md: " + name)
-        text = read(source, key).decode("utf-8")
-        check(text.startswith("---\n") and "\n---\n" in text[4:], "malformed skill frontmatter: " + name)
-        header = text[4:].split("\n---\n", 1)[0]
-        check(re.search(r"^name: " + re.escape(name) + r"\s*$", header, re.M), "skill name/frontmatter mismatch: " + name)
-        check(re.search(r"^description: *(?:\S[^\n]*|\n[ \t]+\S)", header, re.M), "missing skill description: " + name)
-    for name, digest in {**files, **inventory["supplements"]}.items():
-        check(type(name) is str and name == Path(name).as_posix() and ".." not in Path(name).parts
-              and not Path(name).is_absolute() and "\\" not in name, "unsafe skill manifest path")
-        check(type(digest) is str and re.fullmatch(r"[a-f0-9]{64}", digest), "invalid skill manifest hash")
-        data = read(source, name)
-        check(data is not None and hashlib.sha256(data).hexdigest() == digest, "skill/supplement hash conflict: " + name)
-    return tuple(files) + SUPPLEMENTS
+def download_archive(repo, ref, destination):
+    """Fixed official GitHub sources only; no hooks or prerequisite installers."""
+    url = f"https://codeload.github.com/{repo}/tar.gz/{ref}"
+    request = urllib.request.Request(url, headers={"User-Agent": "SDD-WorkFlow installer"})
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response, destination.open("xb") as output:
+            total = 0
+            while block := response.read(65536):
+                total += len(block)
+                check(total <= 32 * 1024 * 1024, "upstream archive download exceeds 32 MiB")
+                output.write(block)
+    except (OSError, urllib.error.URLError) as exc:
+        raise Conflict("upstream download failed: " + repo + "; check access and retry explicitly") from exc
+
+
+def stage_skills(project, stage):
+    groups = {}
+    for repo, ref, subtree, name, notices in SKILL_SOURCES:
+        relative = f".opencode/skills/{name}"
+        folder = project / relative
+        # Existing guidance is user-owned: presence, not a version/content audit.
+        if folder.exists() or folder.is_symlink():
+            check(folder.is_dir() and not folder.is_symlink(), "skill collision: " + name)
+            check(target(project, relative + "/SKILL.md").is_file(), "skill collision: missing SKILL.md for " + name)
+            continue
+        target(project, relative + "/SKILL.md")  # Parent aliases/types before network.
+        groups.setdefault((repo, ref), []).append((subtree, name, notices))
+    files = []
+    for index, ((repo, ref), selections) in enumerate(groups.items()):
+        archive_path = stage / f"upstream-{index}.tar.gz"
+        download_archive(repo, ref, archive_path)
+        count, size = 0, 0
+        try:
+            with tarfile.open(archive_path, "r|gz") as archive:
+                for member in archive:
+                    raw = member.name.rstrip("/") if member.isdir() else member.name
+                    parts = PurePosixPath(raw)
+                    check(raw and not parts.is_absolute() and ".." not in parts.parts and "\\" not in raw
+                          and not any(ord(c) < 32 for c in raw), "unsafe upstream archive path")
+                    path = PurePosixPath(*parts.parts[1:]).as_posix()
+                    data = None  # A shared repository notice may serve several selections.
+                    for subtree, name, notices in selections:
+                        suffix = path[len(subtree) + 1:] if path.startswith(subtree + "/") else None
+                        if suffix is None and path in notices:
+                            suffix = "upstream-notices/" + path
+                        if not suffix:
+                            continue
+                        check(member.isfile() or member.isdir(), "unsafe selected upstream entry")
+                        destination = stage / ".opencode/skills" / name / suffix
+                        check(destination.resolve().is_relative_to(stage), "upstream path escape")
+                        if member.isdir():
+                            destination.mkdir(parents=True, exist_ok=True)
+                            continue
+                        count += 1
+                        size += member.size
+                        check(count <= 2000 and size <= 32 * 1024 * 1024, "selected upstream contents exceed limits")
+                        destination.parent.mkdir(parents=True, exist_ok=True)
+                        if data is None:
+                            data = archive.extractfile(member).read()
+                        with destination.open("xb") as output:
+                            output.write(data)
+                        destination.chmod(member.mode & 0o777)
+                        files.append(destination.relative_to(stage).as_posix())
+        except (OSError, EOFError, tarfile.TarError) as exc:
+            raise Conflict("upstream extraction failed: " + repo) from exc
+        for _, name, _ in selections:
+            check((stage / ".opencode/skills" / name / "SKILL.md").is_file(), "upstream source missing SKILL.md: " + name)
+    return files
 
 
 def existing_context(helper, project):
@@ -259,12 +303,6 @@ def install(project, source=None, after_write=None):
         check(original is None or original == data, "managed conflict: " + name + "; review/move the conflicting file before reinstalling")
         desired[name] = data
     helper = helper_from(source)
-    for name in skill_files(source, helper):
-        data = read(source, name)
-        original = read(project, name)
-        observed[name] = original
-        check(original is None or original == data, "managed conflict: " + name + "; preserve/review it before reinstalling")
-        desired[name] = data
     config_original = read(project, "opencode.json")
     observed["opencode.json"] = config_original
     starter_bytes = read(source, "opencode.json")
@@ -286,6 +324,10 @@ def install(project, source=None, after_write=None):
             path = stage / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
+        skill_paths = stage_skills(project, stage)  # All missing downloads before live writes.
+        for name in skill_paths:
+            check(read(project, name) is None, "concurrent skill destination change: " + name)
+            desired[name], observed[name] = (stage / name).read_bytes(), None
         if retained is None:
             helper.initialize(stage)
             context = helper.load(stage, ".sdd/project.json")
@@ -314,7 +356,7 @@ def install(project, source=None, after_write=None):
                 continue
             preflight_path(project, name)
             mode = stat.S_IMODE((project / name).stat().st_mode) if original is not None else (0o600 if name.startswith(".sdd/") or name.endswith(".sdd-backup") else
-                    stat.S_IMODE((source / name).stat().st_mode) & 0o777 if name.startswith(".opencode/skills/") else 0o644)
+                    stat.S_IMODE((stage / name).stat().st_mode) & 0o777 if name.startswith(".opencode/skills/") else 0o644)
             plan[name] = (data, original, mode)
         # Recheck all relevant managed destinations, including no-ops, before commit.
         if retained is None:

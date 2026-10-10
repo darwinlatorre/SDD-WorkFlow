@@ -1,4 +1,4 @@
-# Agent entry map
+# SDD-WorkFlow — agent entry map
 
 Use this map to find the relevant contracts; do not load every document at startup.
 
@@ -24,7 +24,7 @@ handoff contracts live in `core/`; avoid duplicating them in project instruction
 | Incremental evidence and reuse | `core/verification.md` |
 | Adopt into an existing project | `docs/adoption.md` |
 | Runtime permissions and startup adaptation | `docs/opencode.md` |
-| Task-relevant bundled guidance and upstream terms | `docs/skills.md`, `THIRD_PARTY_NOTICES.md` |
+| Task-relevant upstream guidance and terms | `docs/skills.md`, `THIRD_PARTY_NOTICES.md` |
 
 Recover the active checkpoint first. Read the assigned spec and current evidence,
 then follow source references only as needed. Keep approved specs immutable and

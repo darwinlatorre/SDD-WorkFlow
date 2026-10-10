@@ -56,18 +56,19 @@ conservative but cannot recognize arbitrary credentials embedded in code: keep
 secrets out of project context/scopes. Actor strings do not authenticate humans.
 No inference-session or model compatibility claim is made from config listings.
 
-## Bundled guidance
+## Upstream guidance
 
 The [seven skills](skills.md) have explicit named `skill` allowances on all four
 profiles, with unknown names denied. Load only relevant guidance on demand. Role
 and human scope limits precede upstream instructions; original allowed-tools/setup
 metadata is not permission to install tools or run workflows. Verifier stays denied
 shell/writes and never reruns checks. Runtime-owned built-ins may appear in discovery
-but are not bundled/allowed by this profile. See [upstream terms](../THIRD_PARTY_NOTICES.md).
+but are not supplied/allowed by this profile. Codegraphcontext is guidance only,
+not cgc/MCP/database setup. See [upstream terms](../THIRD_PARTY_NOTICES.md).
 
 ## Installed onboarding
 
-The [installer guide](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/docs/getting-started.md) describes preservation of supported model/provider settings and
+The [installer guide](https://github.com/darwinlatorre/ssd-workflow/blob/main/docs/getting-started.md) describes preservation of supported model/provider settings and
 product AGENTS instructions without invoking a provider. It refuses unsupported
 JSONC/conflicts instead of overwriting them. It installs only the local core and
 these adoption/runtime docs; broader learning docs stay in the framework checkout.

@@ -1,10 +1,10 @@
 # Adoption
 
-1. Use the [installer guide](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/docs/getting-started.md) in an existing project; it initializes
+1. Use the [installer guide](https://github.com/darwinlatorre/ssd-workflow/blob/main/docs/getting-started.md) in an existing project; it initializes
    missing .sdd and preserves valid existing context, instructions and config.
 2. Adapt source roots, procedures, capabilities, non-secret current identities and
-   risk policy. See the repository's [Python](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/tests/fixtures/python-layout.json) and
-   [Rust](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/tests/fixtures/rust-layout.json) fixtures. No toolchain is installed.
+   risk policy. See the repository's [Python](https://github.com/darwinlatorre/ssd-workflow/blob/main/tests/fixtures/python-layout.json) and
+   [Rust](https://github.com/darwinlatorre/ssd-workflow/blob/main/tests/fixtures/rust-layout.json) fixtures. No toolchain is installed.
 3. Inventory feature dependencies and stable IDs. Planner authors explicit
    [metadata](../core/spec-format.md); human assesses prose consistency.
 4. Orchestrator consumes explicit human approval, records transitions and invokes
@@ -84,5 +84,5 @@ Run only project checks outside the helper with bounded timeout and concise sani
 results. Default scopes include all relevant source/check/config inputs; narrower
 complete scopes need approved justification. Never scope/hash secrets. Review
 when policy requires it, then wait for distinct explicit human closure. The
-[worked lifecycle](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/examples/worked-lifecycle/README.md) executes adopted helper
+[worked lifecycle](https://github.com/darwinlatorre/ssd-workflow/blob/main/examples/worked-lifecycle/README.md) executes adopted helper
 coordination and demonstrates unchanged startup config through task changes/closure.

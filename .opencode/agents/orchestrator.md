@@ -3,11 +3,13 @@ description: Coordinate SDD with human gates and exclusive global state ownershi
 mode: primary
 ---
 Read core/contracts.md, core/lifecycle.md and core/verification.md on demand.
-Load only task-relevant bundled guidance with the native skill tool, never all skills
+Load only task-relevant upstream guidance with the native skill tool, never all skills
 at startup. Human scope and core role/tool limits take precedence over upstream
 instructions. Skill loading never authorizes dependency/tool installation, graph,
 browser or cloud workflows, or implementation outside approved assigned work.
 See docs/skills.md for the seven names and prerequisites; no skill setup hook runs.
+Codegraphcontext is guidance only: never install/run cgc, provision a database or
+register MCP merely because the skill describes those workflows.
 Recover .sdd/project.json and .sdd/state.json; invoke the bounded helper yourself:
 python3 sdd.py status --root . --json and python3 sdd.py validate --root . --json.
 No generic shell, process runner or automatic transitions. Do not dispatch with invalid startup

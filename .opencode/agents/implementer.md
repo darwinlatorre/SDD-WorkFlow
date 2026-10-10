@@ -3,6 +3,10 @@ description: Implement only approved task paths and record scoped evidence
 mode: subagent
 ---
 Follow core/lifecycle.md and core/verification.md. No implementation before approval.
+Load only task-relevant bundled guidance with the native skill tool, never all skills
+at startup. Human scope and core role/tool limits take precedence over upstream
+instructions. Loading does not grant tool/dependency installation, browser/graph/cloud
+operations or work outside the current assignment. See docs/skills.md for prerequisites.
 Require helper validation of full current spec approval and completed dependencies.
 Require an explicit current assignment ID and matching task list from orchestrator's
 status authorization. Work only while authorization.status is active; reject

@@ -15,6 +15,8 @@ KINDS = {"automated", "observable", "integration", "static"}
 STATUSES = {"pending", "spec_ready", "revision_required", "in_progress", "blocked", "done"}
 ROLES = ("orchestrator", "planner", "implementer", "verifier")
 BUILTINS = ("build", "plan", "general", "explore", "scout")
+BUNDLED_SKILLS = ("auth0", "frontend-design", "graphify", "playwright-cli", "vercel-composition-patterns",
+                  "vercel-react-best-practices", "vercel-react-native-skills")
 
 
 class Invalid(ValueError):
@@ -625,7 +627,8 @@ def runtime_capabilities(root, project):
 
 def permission_profile(project, dispatch=None, helper_access=True, runtime_grants=False):
     read = {"*": "allow", "*.env": "deny", "*.env.*": "deny"}
-    base = {"*": "deny", "read": read, "glob": "allow", "grep": "allow", "question": "allow"}
+    base = {"*": "deny", "read": read, "glob": "allow", "grep": "allow", "question": "allow",
+            "skill": {"*": "deny", **{name: "allow" for name in BUNDLED_SKILLS}}}
     profiles = {role: dict(base) for role in ROLES}
     profiles["orchestrator"].update(edit={"*": "deny", ".sdd/*": "allow", ".sdd/evidence/*": "deny",
         ".sdd/progress/*.json": "deny", ".sdd/progress/*-review.json": "allow", ".sdd/progress/*-closure.json": "allow"},
@@ -702,6 +705,8 @@ def permissions(root, role, value, project, dispatch):
                     require(not any(c in pattern for c in "*?\n"), "adapter unbounded procedure command pattern")
             if tool == "task":
                 valid = role == "orchestrator" and pattern in {"planner", "implementer", "verifier"}
+            if tool == "skill":
+                valid = pattern in BUNDLED_SKILLS and action == "allow"
             require(valid, "adapter incompatible effective permissions: " + role + ": " + tool + " " + pattern)
     # Rule order matters: check protected targets, not equality to the starter.
     edit = value.get("edit", "deny")
@@ -716,6 +721,10 @@ def permissions(root, role, value, project, dispatch):
             require(action == "deny" or expected == "allow", "adapter wildcard permission overrides protected path: " + role)
     read = value.get("read", "deny")
     require(all(effective(read, name) == "deny" for name in (".env", "src/.env", "src/service.env.key")), "adapter secret read permission override")
+    skills = value.get("skill", "deny")
+    require(type(skills) is dict and skills.get("*") == "deny" and
+            all(effective(skills, name) == "allow" for name in BUNDLED_SKILLS),
+            "adapter lazy named skill permissions missing/overridden: " + role)
     bash = value.get("bash", "deny")
     if role == "orchestrator" and type(bash) is dict and any(a != "deny" for a in bash.values()):
         require(project.get("extensions", {}).get("helper_access", True) is True, "adapter helper access is opted out")
@@ -728,8 +737,24 @@ def adapter(root, project, state, results, dispatch):
     require(type(config) is dict and "extensions" not in config, "adapter unknown core field")
     required = {"$schema": str, "default_agent": str, "agent": dict, "permission": dict,
                 "autoupdate": bool, "share": str, "formatter": bool, "lsp": bool}
-    optional = {"logLevel": str, "username": str, "snapshot": bool, "watcher": dict, "model": str, "small_model": str}
+    optional = {"logLevel": str, "username": str, "snapshot": bool, "watcher": dict, "model": str, "small_model": str, "provider": dict}
     shape(config, {**required, **{k: typ for k, typ in optional.items() if k in config}}, "adapter config")
+    # Provider settings are opaque user data, never invoked or included in diagnostics.
+    for provider in config.get("provider", {}).values():
+        allowed = {"api": str, "name": str, "env": list, "id": str, "npm": str,
+                   "whitelist": list, "blacklist": list, "options": dict, "models": dict}
+        require(type(provider) is dict and set(provider) <= set(allowed), "adapter unsupported provider fields")
+        require(all(type(value) is allowed[key] for key, value in provider.items()), "adapter invalid provider field type")
+        for key in ("env", "whitelist", "blacklist"):
+            require(all(type(item) is str for item in provider.get(key, [])), "adapter invalid provider string array")
+        require(all(type(item) is dict for item in provider.get("models", {}).values()), "adapter invalid provider model object")
+        options = provider.get("options", {})
+        for key in ("apiKey", "baseURL", "enterpriseUrl"):
+            require(key not in options or type(options[key]) is str, "adapter invalid provider option type")
+        require("setCacheKey" not in options or type(options["setCacheKey"]) is bool, "adapter invalid provider cache option")
+        for key in ("timeout", "headerTimeout", "chunkTimeout"):
+            require(key not in options or options[key] is False or type(options[key]) is int and options[key] > 0,
+                    "adapter invalid provider timeout")
     require(config["$schema"] == "https://opencode.ai/config.json" and config["default_agent"] == "orchestrator", "adapter schema/default role invalid")
     require(config["permission"] == {"*": "deny"} and config["autoupdate"] is False and config["share"] == "disabled"
             and config["formatter"] is False and config["lsp"] is False, "adapter unsafe global overrides")

@@ -1,9 +1,10 @@
 # Adoption
 
-1. Initialize .sdd in an existing project; keep the stdlib helper/core available.
+1. Use the [installer guide](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/docs/getting-started.md) in an existing project; it initializes
+   missing .sdd and preserves valid existing context, instructions and config.
 2. Adapt source roots, procedures, capabilities, non-secret current identities and
-   risk policy. See the [Python](../tests/fixtures/python-layout.json) and
-   [Rust](../tests/fixtures/rust-layout.json) fixtures. No toolchain is installed.
+   risk policy. See the repository's [Python](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/tests/fixtures/python-layout.json) and
+   [Rust](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/tests/fixtures/rust-layout.json) fixtures. No toolchain is installed.
 3. Inventory feature dependencies and stable IDs. Planner authors explicit
    [metadata](../core/spec-format.md); human assesses prose consistency.
 4. Orchestrator consumes explicit human approval, records transitions and invokes
@@ -26,12 +27,21 @@ nonempty arrays may only request a subset of assigned work.
 
 ## One-time OpenCode startup adaptation
 
-Copy sdd.py, core/, opencode.json, `.opencode/agents/`, `.opencode/commands/` without
-overwriting existing project conventions. Orchestrator owns controlled adapter
+The installer supplies sdd.py, core/, merged opencode.json, `.opencode/agents/`,
+`.opencode/commands/` and these two runtime/adoption docs. In an installed project,
+use the local core and runtime links; repository learning docs remain in the checkout.
+Orchestrator owns controlled adapter
 coordination (opencode.json only), never application implementation. Project
 config may include supported harmless settings such as username, logLevel, watcher,
 snapshot or user model choice; role invariants, not starter equality, are checked.
 No arbitrary plugins/MCP/global tools are validated as safe by this profile.
+
+Planning is immediately available with no inferred paths/procedures. If the feature
+inventory is empty, orchestrator records your requested pending feature and delegates
+planner; source paths/procedures/capabilities/risk are obtained from the real project
+before spec_ready and implementation. The installer does not guess or grant those
+capabilities. Orchestrator can read/glob project sources and coordinate .sdd/config
+with its existing bounded tools. Missing information requires a question, not an install.
 
 Shipped orchestrator has only bounded local helper shell access. Implementer starts
 with no writes/execution; verifier stays read-only and never runs checks. To support
@@ -51,6 +61,7 @@ inspect resolved runtime config. A required explicit human spec approval/reset/
 closure is different from a runtime tool permission prompt.
 
 **OpenCode loads config at startup; it does not hot reload these permission edits.**
+Reopen/restart OpenCode after the initial project-specific setup changes config.
 Normal task coordination updates certificates/state and does not rewrite config
 or restart the runtime task-by-task. Already granted tool permissions may remain
 in a session after a certificate is operationally revoked. Prompts/dispatch checks
@@ -73,5 +84,5 @@ Run only project checks outside the helper with bounded timeout and concise sani
 results. Default scopes include all relevant source/check/config inputs; narrower
 complete scopes need approved justification. Never scope/hash secrets. Review
 when policy requires it, then wait for distinct explicit human closure. The
-[worked lifecycle](../examples/worked-lifecycle/README.md) executes adopted helper
+[worked lifecycle](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/examples/worked-lifecycle/README.md) executes adopted helper
 coordination and demonstrates unchanged startup config through task changes/closure.

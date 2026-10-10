@@ -55,3 +55,25 @@ denied shell/write tools even with runtime_grants enabled. Secret-name guards ar
 conservative but cannot recognize arbitrary credentials embedded in code: keep
 secrets out of project context/scopes. Actor strings do not authenticate humans.
 No inference-session or model compatibility claim is made from config listings.
+
+## Bundled guidance
+
+The [seven skills](skills.md) have explicit named `skill` allowances on all four
+profiles, with unknown names denied. Load only relevant guidance on demand. Role
+and human scope limits precede upstream instructions; original allowed-tools/setup
+metadata is not permission to install tools or run workflows. Verifier stays denied
+shell/writes and never reruns checks. Runtime-owned built-ins may appear in discovery
+but are not bundled/allowed by this profile. See [upstream terms](../THIRD_PARTY_NOTICES.md).
+
+## Installed onboarding
+
+The [installer guide](https://github.com/darwinlatorre/SDD-WorkFlow/blob/main/docs/getting-started.md) describes preservation of supported model/provider settings and
+product AGENTS instructions without invoking a provider. It refuses unsupported
+JSONC/conflicts instead of overwriting them. It installs only the local core and
+these adoption/runtime docs; broader learning docs stay in the framework checkout.
+Initial state has no features, source roots or procedures: orchestrator can read/glob
+the project, record a pending feature from your request and delegate planning now.
+Before implementation it obtains real paths/procedures/identities/risk, validates
+them and prepares the one-time capability envelope. Reopen OpenCode to load changed
+config; no auto-detection or hot reload is claimed. Human approval and current
+assignment scope remain required. Verifier execution permissions are not broadened.

@@ -1,22 +1,17 @@
-<p align="center"><img src="assets/wordmark.svg" alt="SDD-WorkFlow — linked specifications and human gates" width="560"></p>
+<p align="center"><img src="assets/wordmark.svg" alt="sdd-workflow" width="560"></p>
 
-# SDD-WorkFlow
+# sdd-workflow
 
-**Small contracts. Durable context. Human authority.**
+I built this framework as a **learning project to understand and apply Spec-Driven
+Development (SDD) and Harness Engineering**. It also offers a practical, stack-independent
+way to coordinate development in existing projects using OpenCode or another runtime.
 
-A stack-independent **software development framework** built around Spec-Driven
-Development and Harness Engineering: four focused roles, immutable full-spec
-approval, scoped verification evidence and a deterministic offline Python helper.
-Adopt it into an existing project with the stack and agent runtime you choose.
+The same installer preinstalls seven independent [skills](docs/skills.md) for task-relevant guidance; it does not install or run their tools.
 
-## Why use it?
-
-- **Explicit authority:** one coordinator, one implementer and human decision gates.
-- **Recoverable work:** persistent checkpoints and source-linked context across sessions.
-- **Incremental quality:** reuse valid evidence; repeat only checks invalidated by changes.
-- **Efficient context:** short handoffs, selective reads and shared contracts.
-- **Educational by design:** learn how Harness Engineering turns agent instructions
-  into bounded, observable and repeatable development work.
+Four focused roles share durable context: orchestrator coordinates, planner prepares
+the spec, one implementer changes approved assigned work, and a conditional verifier
+reviews existing evidence without rerunning checks. Human approval and closure stay
+explicit. Scoped evidence and compact handoffs make work recoverable across sessions.
 
 ```text
 Request → Spec → Human approval → Implementation + evidence
@@ -26,52 +21,60 @@ Request → Spec → Human approval → Implementation + evidence
 
 ## Quickstart
 
-Python 3.10+ is sufficient. From the downloaded repository, on a POSIX shell:
+Already have **Python 3.10+, curl and OpenCode** installed, with your own working
+model/provider configuration. This installer does not install those tools.
 
-```sh
-FRAMEWORK="$PWD"
-PROJECT="$(mktemp -d)"
-python3 "$FRAMEWORK/sdd.py" init --root "$PROJECT"
-python3 "$FRAMEWORK/sdd.py" validate --root "$PROJECT" --json
-python3 "$FRAMEWORK/sdd.py" status --root "$PROJECT" --json
-python3 -m unittest discover -s "$FRAMEWORK/tests" -v
-DEMO="$(mktemp -d)"
-python3 "$FRAMEWORK/examples/worked-lifecycle/demo.py" --root "$DEMO"
-```
+1. In your existing project's terminal, install the project-local framework:
 
-Init writes only `.sdd/` context, never application code. Status recommends plan;
-it does not transition state or execute tests. The demo executes actual helper
-gates and a small local assertion; its human/agent records are explicitly simulated.
-Keep the temporary directories for inspection or remove only those you created.
-Commands also work outside the repository when FRAMEWORK is its absolute path.
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/darwinlatorre/SDD-WorkFlow/main/install.sh | sh
+   ```
+
+2. Start OpenCode in that same directory:
+
+   ```sh
+   opencode
+   ```
+
+3. Ask the default orchestrator:
+
+   > Plan a feature to export the project's existing items to a CSV file.
+   > Prepare requirements, design and tasks; do not implement yet.
+
+4. Read `specs/<feature>/requirements.md`, `design.md` and `tasks.md`. When satisfied,
+   explicitly approve that spec version in the conversation before implementation.
+   Orchestrator prepares the real project's paths/check procedures and one-time
+   bounded permissions. **If config changes, reopen OpenCode to load it**, then continue.
+
+5. To resume later, reopen `opencode` in the same project and ask:
+
+   > Resume the active feature from its checkpoint; reuse evidence that is still valid.
+
+Installation preserves compatible model/provider settings and product instructions,
+backs up changed config/instructions, and never overwrites existing workflow state
+or specs. Conflicts fail without a force overwrite. The remote command trusts this
+repository's public GitHub `main`, not a pinned release. Use the
+[local/offline route](docs/getting-started.md) if you prefer a reviewed checkout.
 
 ## Learn and adopt
 
-- [Getting started](docs/getting-started.md) — commands, approval and exit codes.
-- [Agent entry map](AGENTS.md) — roles and context loaded on demand.
-- [Core contracts](core/contracts.md), [spec format](core/spec-format.md),
-  [lifecycle](core/lifecycle.md), [verification](core/verification.md).
-- [Architecture](docs/architecture.md), [adoption](docs/adoption.md),
-  [alternate runtimes](docs/alternate-runtimes.md).
-- [Worked lifecycle](examples/worked-lifecycle/README.md) — failure, repair and closure.
+- [Getting started](docs/getting-started.md): installation options and first session.
+- [Agent entry map](AGENTS.md), [contracts](core/contracts.md),
+  [spec format](core/spec-format.md), [lifecycle](core/lifecycle.md),
+  [verification](core/verification.md).
+- [Adoption](docs/adoption.md), [OpenCode permissions/limits](docs/opencode.md),
+  [architecture](docs/architecture.md), [alternate runtimes](docs/alternate-runtimes.md).
 - [Harness Engineering](docs/harness-engineering.md), [decisions](docs/decisions.md),
-  [original workflow analysis](docs/original-workflow-analysis.md).
-- [OpenCode compatibility](docs/opencode.md) and [brand](assets/README.md).
+  [original analysis](docs/original-workflow-analysis.md).
+- Secondary: [helper CLI, demo and maintainer tests](docs/getting-started.md#secondary-helper-demo-and-tests),
+  [worked lifecycle](examples/worked-lifecycle/README.md).
 
-## Four roles, one state writer
+The stdlib helper is offline and deterministic; installation is a separate bounded
+operation, not an updater or autonomous engine. No graph, skill bundle or model is
+mandatory. Runtime ASK capabilities are not task authority or an OS sandbox;
+assignments remain explicit and config is loaded at startup, not hot reloaded.
+See the runtime limits before using untrusted checks. No passing test automatically
+closes a feature. Offline inspection is not a claimed model-driven planning session.
 
-Orchestrator coordinates and records global state; planner authors the spec;
-implementer changes approved task paths and records evidence; conditional verifier
-reviews existing artifacts **without reruns**. Human approves and explicitly closes.
-No successful test or helper command automatically marks a feature done.
-
-OpenCode is optional. Its orchestrator can run bounded helper status/validate/approval
-without recurring human command chores. Implementation starts denied; a one-time
-bounded ASK capability adaptation avoids task-by-task runtime restarts. Each dispatch
-still requires an explicit eligible-task assignment ID and exact scopes; future or
-completed tasks are not authorized. Disable inherited work agents and inspect
-effective configuration before use. Config loads at startup, not hot reload.
-Permissions and dispatch certificates are operational guardrails,
-not an OS sandbox or proof of human identity. See the isolation limits above.
-
-MIT — Copyright (c) 2026 Darwin Latorre. [License](LICENSE).
+First-party code: MIT — Copyright (c) 2026 Darwin Latorre. [License](LICENSE).
+Bundled skills retain their [upstream terms and attribution](THIRD_PARTY_NOTICES.md).

@@ -22,13 +22,16 @@ VERCEL_REF = "063bee94c3f4df8453406c830b0a7df0f2860278"
 SKILL_SOURCES = (
     ("auth0/agent-skills", "d48ab4b1b36c9d9574f88e18dc182e9e896fa582", "plugins/auth0/skills/auth0", "auth0", ("LICENSE", "NOTICE")),
     ("anthropics/skills", "dbd4588f9e1033efb41dad4bef2f7947c8993d44", "skills/frontend-design", "frontend-design", ()),
-    ("CodeGraphContext/CodeGraphContext", "1eedea3527a31443b75d29a632c4c477b7b30508", ".cursor/skills/codegraphcontext", "codegraphcontext", ("LICENSE", "NOTICE")),
+    ("CodeGraphContext/CodeGraphContext", "1eedea3527a31443b75d29a632c4c477b7b30508", ".cursor/skills/codegraphcontext", "codegraphcontext", ("LICENSE",)),
     ("microsoft/playwright-cli", "b85c7a736bb473bf55b584e54a09ffa698d6d871", "skills/playwright-cli", "playwright-cli", ("LICENSE", "NOTICE")),
     ("vercel-labs/agent-skills", VERCEL_REF, "skills/composition-patterns", "vercel-composition-patterns", ("LICENSE", "NOTICE")),
     ("vercel-labs/agent-skills", VERCEL_REF, "skills/react-best-practices", "vercel-react-best-practices", ("LICENSE", "NOTICE")),
     ("vercel-labs/agent-skills", VERCEL_REF, "skills/react-native-skills", "vercel-react-native-skills", ("LICENSE", "NOTICE")),
 )
 SKILLS = tuple(row[3] for row in SKILL_SOURCES)
+# This selected upstream skill is one file with external documentation references.
+CODEGRAPH_FILES = ((".cursor/skills/codegraphcontext/SKILL.md", "SKILL.md"),
+                   ("LICENSE", "upstream-notices/LICENSE"))
 CONTEXT = ("project.json", "state.json", "environment.json", "decisions.md")
 START = "<!-- sdd-workflow:source-map:start -->"
 END = "<!-- sdd-workflow:source-map:end -->"
@@ -138,19 +141,22 @@ def helper_from(source):
     return helper
 
 
-def download_archive(repo, ref, destination):
-    """Fixed official GitHub sources only; no hooks or prerequisite installers."""
-    url = f"https://codeload.github.com/{repo}/tar.gz/{ref}"
+def download_bytes(url, destination, limit, label):
+    """Bounded bytes from fixed official sources; no hooks or setup execution."""
     request = urllib.request.Request(url, headers={"User-Agent": "SDD-WorkFlow installer"})
     try:
         with urllib.request.urlopen(request, timeout=30) as response, destination.open("xb") as output:
             total = 0
             while block := response.read(65536):
                 total += len(block)
-                check(total <= 32 * 1024 * 1024, "upstream archive download exceeds 32 MiB")
+                check(total <= limit, "upstream download exceeds limit: " + label)
                 output.write(block)
     except (OSError, urllib.error.URLError) as exc:
-        raise Conflict("upstream download failed: " + repo + "; check access and retry explicitly") from exc
+        raise Conflict("upstream download failed: " + label + "; check access and retry explicitly") from exc
+
+
+def download_archive(repo, ref, destination):
+    download_bytes(f"https://codeload.github.com/{repo}/tar.gz/{ref}", destination, 32 * 1024 * 1024, repo)
 
 
 def stage_skills(project, stage):
@@ -167,6 +173,15 @@ def stage_skills(project, stage):
         groups.setdefault((repo, ref), []).append((subtree, name, notices))
     files = []
     for index, ((repo, ref), selections) in enumerate(groups.items()):
+        if selections[0][1] == "codegraphcontext":
+            # Fetch only the two declared files, not the unrelated 47 MB repository.
+            for path, suffix in CODEGRAPH_FILES:
+                destination = stage / ".opencode/skills/codegraphcontext" / suffix
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                download_bytes(f"https://raw.githubusercontent.com/{repo}/{ref}/{path}", destination, 1024 * 1024, repo)
+                files.append(destination.relative_to(stage).as_posix())
+            check((stage / ".opencode/skills/codegraphcontext/SKILL.md").is_file(), "upstream source missing SKILL.md: codegraphcontext")
+            continue
         archive_path = stage / f"upstream-{index}.tar.gz"
         download_archive(repo, ref, archive_path)
         count, size = 0, 0

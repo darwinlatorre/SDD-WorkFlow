@@ -3,6 +3,9 @@
 Missing guidance comes directly from the official repositories below, not from
 copies shipped in this framework. `install.py` contains the same compact source
 table. Refs are fixed commits; three Vercel selections share one archive download.
+CodeGraphContext is fetched as just its declared SKILL.md and root LICENSE from
+raw upstream files; its unrelated repository archive is not downloaded. The other
+four repository groups use selected-subtree archive extraction.
 
 | Native name | Repository / ref | Selected subtree |
 | --- | --- | --- |
